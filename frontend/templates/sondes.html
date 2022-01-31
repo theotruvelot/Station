@@ -1,0 +1,23 @@
+{% extends "layout.html" %} {% block title %} Home {% endblock %} 
+
+{% block content %}
+
+<div class="row">
+        <div class="col-md-6 col-md-offset-3">
+                <h2>Welcome!</h2>
+                {% if session['name']%}
+                <p>You login as {{session['name'] }} {{session['prenom']}}</p>
+                {% for i in sondes %}
+                      
+                   
+                    <li>Sonde : {{ i.sonde_id }} Status : {{ i.sonde_status }} <a href="/sonde/data/{{ i.sonde_id }}"> data </a> </li> 
+                {% endfor %}
+                {% else %}
+                <p>Not logged yet</p>
+                {% endif %}
+        </div>
+</div>
+
+{% endblock %}<ul>
+    
+</ul>
