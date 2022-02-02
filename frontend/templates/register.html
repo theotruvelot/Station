@@ -1,0 +1,34 @@
+{% extends "layout.html" %} {% block title %} Register {% endblock %} 
+
+{% block content %}
+<link rel="stylesheet" href="../static/style.css">
+
+<div class="register-box">
+
+        <form action="/register" method="POST">
+
+                <div class="register-saisie">
+                        <input type="text" class="register-saisie-txt" name="prenom" placeholder="Prenom">
+                </div>
+
+                <div class="register-saisie">
+                        <input type="text" class="register-saisie-txt" name="name" placeholder="Nom">
+                </div>
+
+                <div class="register-saisie">
+                        <input type="text" class="register-saisie-txt" name="email" placeholder="Email">
+                </div>
+
+                <div class="register-saisie">
+                        <input type="password" class="register-saisie-txt" name="password" placeholder="Password">
+                </div>
+
+                <div>
+                        <button type="submit" class="register-box-btn">Register</button>
+                </div>
+
+        </form>
+        
+</div>
+
+{% endblock %}

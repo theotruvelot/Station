@@ -1,0 +1,26 @@
+{% extends "layout.html" %} {% block title %} Home {% endblock %} 
+{% block content %}
+<div class="row">
+        <div class="col-md-6 col-md-offset-3">
+                <h2>data</h2>
+                {% if session['name']%}
+                <p>You login as {{session['name'] }} {{session['prenom']}}</p>   
+                    {% if datas != None %}
+                        {% for i in datas %} 
+                        <ul>
+                            <li>
+                             id : {{ i.releve_id }} temp : {{ i.releve_temp }} date : {{ i.releve_date }} 
+                            </li>
+                        </ul>
+                     {% else %}
+                        <h1>AUCUNE DATA</h1>
+                        {% endfor%}
+                {% endif %}
+
+                {% else %}
+                <p>Pas encore connecté</p>
+                {% endif %}
+        </div>
+</div>
+
+{% endblock %}

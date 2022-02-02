@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="fr">
+
+<head>
+        <meta charset="UTF-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <link rel="stylesheet" href="../static/style.css">
+        <title>{% block title %}{% endblock %}</title>
+</head>
+
+
+<body>
+
+        <header>
+
+                <div class="container">
+                
+                        
+                        <a class="logo" href="/">
+                                <img src="https://static.thenounproject.com/png/851351-200.png" alt="">
+                        </a>
+        
+                        <nav class="navbar">
+        
+                                <ul>
+
+                                        <li class="navbar-item">
+                                                <a href="/">Home</a>
+                                        </li>
+                
+                                        {% if session['name'] %}
+                
+                                        <li class="navbar-item">
+                                                <a href="logout">Logout</a>
+                                        </li>
+                
+                                        {% if session['admin'] == '1' %}
+                
+                                        <li class="navbar-item">
+                                                <a href="/dashboardadmin">Dashboard admin</a>
+                                        </li>
+                
+                                        {% else %}
+                
+                                        <li class="navbar-item">
+                                                <a href="/sondes"> Sondes</a>
+                                        </li>
+                
+                                        {% endif %} {% else %}
+                
+                                        <li class="navbar-item">
+                                                <a href="/login">Login</a>
+                                        </li>
+                
+                                        <li class="navbar-item">
+                                                <a href="/register">Register</a>
+                                        </li>
+                
+                                        {% endif %}
+        
+                                </ul>  
+                        </nav>
+        
+                </div>
+        
+        </header> 
+        
+
+        <div>
+                {% block content %}{% endblock %}
+        </div>
+
+</body>
+
+</html>

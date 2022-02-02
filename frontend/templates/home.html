@@ -1,0 +1,46 @@
+{% extends "layout.html" %} {% block title %} Home {% endblock %} {% block content %}
+
+<div class="home-body">
+
+        <div>
+
+                <h2>Bienvenu sur notre projet CUBES</h2>
+
+                {% if session['name']%}
+
+                <p>Vous êtes connecté en tant que : {{session['name'] }} {{session['prenom']}}</p>
+
+                {% for id in range(0,id) %}
+
+                <li> Sonde : {{ id }} Status : {{ status }} 
+                        <a href="/sonde/data/{{ id }}"> data </a> 
+                </li> 
+
+                {% endfor %}   
+
+
+
+                {% else %}
+                <p>Vous n'êtes pas encore connecté</p>
+                {% endif %}
+
+        </div>
+
+        <div class="home-grid">
+                <div>
+                        <p>SONDES</p>
+                </div>
+                <div>
+                        <p>TEMPS</p>
+                </div>
+                <div>
+                        <p>GRAPH</p>
+                </div>
+                <div>
+                        <p>jdhflq</p>
+                </div>
+        </div>
+
+</div>
+
+{% endblock %}
