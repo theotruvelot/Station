@@ -1,7 +1,6 @@
 from importlib.metadata import requires
-from flask import Flask, render_template, request, session
+from flask import Flask, render_template, request, session, flash
 from flask_bootstrap import Bootstrap
-import bcrypt
 import pymysql
 import logging
 from datetime import date
@@ -10,7 +9,7 @@ today = date.today()
 d1 = today.strftime("%d%m%Y")
 logging.basicConfig(filename='logs_'+d1+'.log', level=logging.INFO,
                     format=f'%(asctime)s %(levelname)s : %(message)s')
-
+useid = []
 try:
     db = pymysql.connect(host='localhost',
                          user='root',
@@ -34,7 +33,7 @@ def home():
 def dashboard():
     return render_template("dashboard.html")
 
-@app.route("/register",  methods=['GET', 'POST'])
+@app.route("/register", methods=['GET', 'POST'])
 def register():
     if request.method == 'GET':
         return render_template("register.html")
@@ -42,55 +41,60 @@ def register():
         prenom = request.form['prenom']
         name = request.form['name']
         email = request.form['email']
-        password = request.form['password'].encode('utf-8')
-        hash_password = bcrypt.hashpw(password, bcrypt.gensalt())
-        sql = "INSERT INTO USERS (USE_NOM, USE_PRENOM, USE_EMAIL, USE_PASS) VALUES (%s, %s, %s, %s);"
-        sql1 = "SELECT USE_ID FROM USERS WHERE USE_EMAIL = %s"
-        with db.cursor(pymysql.cursors.DictCursor) as cursor:
-            try:
-                cursor.execute(sql1, email)
-                emails = cursor.fetchall()
-                if len(emails) >= 1:
-                    return "Y'a déjà cet email bg go te login"
-                else:
-                    cursor.execute(sql, (name, prenom, email, hash_password))
-                    db.commit()
-                    session['name'] = name
-                    session['prenom'] = prenom
-                    session['email'] = email
-                    return render_template("home.html")
-
-            except db.Error as err:
-                print(err)
-                return render_template("home.html")
+        password = request.form['password']
+        r = requests.post('http://localhost:5010/register', json={
+            "email":str(email),
+            "name":str(name),
+            "prenom":str(prenom),
+            "password":str(password)
+        })
+        if r.status_code == 201:
+            datas = json.loads(r.content)
+            print(datas)
+            admin = []
+            name = [row['name'] for row in datas]
+            prenom = [row['prenom'] for row in datas]
+            email = [row['email'] for row in datas]
+            session['name'] = name[0]
+            session['prenom'] = prenom[0]
+            session['email'] = email[0]
+            session['admin'] = admin
+            return render_template("home.html")
+        else: 
+            return {"Déjà cette email"}, 401
 
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
     if request.method == 'POST':
         email = request.form['email']
-        password = request.form['password'].encode('utf-8')
-        sql = "SELECT * FROM USERS WHERE USE_EMAIL = %s"
-        with db.cursor(pymysql.cursors.DictCursor) as cursor:
-            try:
-                cursor.execute(sql, email)
-                user = cursor.fetchone()
-                if len(user) > 1:
-                    if bcrypt.hashpw(password, user['USE_PASS'].encode('utf-8')) == user['USE_PASS'].encode('utf-8'):
-                        session['name'] = user['USE_NOM']
-                        session['prenom'] = user['USE_PRENOM']
-                        session['email'] = user['USE_EMAIL']
-                        session['admin'] = user['USE_ADMIN']
-                        return render_template("home.html")
-                    else:
-                        return "Error password and email doesnt match"
-                else:
-                    return "Error password and email doesnt match"
-            except db.Error as err:
-                print(err)
-        return render_template("home.html")
+        password = request.form['password']
+        r = requests.post('http://localhost:5010/login', json={
+            "email": str(email),
+            "password":str(password)
+        })
+        print(password)
+        print(r.status_code)
+        if r.status_code == 201:
+            datas = json.loads(r.content)
+            print(datas)
+            useid = [row['useid'] for row in datas]
+            name = [row['name'] for row in datas]
+            prenom = [row['prenom'] for row in datas]
+            email = [row['email'] for row in datas]
+            admin = [row['admin'] for row in datas]
+            session['useid'] = useid[0]
+            session['name'] = name[0]
+            session['prenom'] = prenom[0]
+            session['email'] = email[0]
+            session['admin'] = admin[0]
+            return render_template("home.html")
+        else:
+            flash('Identifiants Incorrects')
+            return {"erreur dans le login"}
     else:
         return render_template("login.html")
+
 @app.route("/logout")
 def logout():
     session.clear()
@@ -102,13 +106,35 @@ def sondes():
     sondes = json.loads(sonde.content)
     
     return render_template("sondes.html", sondes=sondes)
-
+@app.route('/sonde/create', methods=['POST'])
+def post():
+        location = request.form["location"]
+        r = requests.post("http://localhost:5010/sonde/create", json={
+            "useid":useid[0],
+            "location":location
+        })
+        if r.status_code == 201: 
+            return{"Création OK"}
+        else: 
+            return {"Création Error"}
 @app.route("/sonde/data/<string:id>")
 def data(id):
     data = requests.get("http://localhost:5010/sonde/data/" + id)
     datas = json.loads(data.content)
-    return render_template("data.html",  datas = datas)
-
+    date = [row['releve_date'] for row in datas]
+    temp = [row['releve_temp'] for row in datas]
+    humi = [row['releve_humi'] for row in datas]
+    return render_template("data.html",  datas = datas, temp = temp, date = date, humi = humi)
+@app.route("/admin/sonde/set")
+def put(): 
+    r = request.put("http://localhost:5010/admin/sonde/set", json={
+        "idsonde":request.form['idsonde'],
+        "status":request.form['status']
+    })
+    if r.status_code == 201:
+        return{"OK"}
+    else
+        return{"NOK"}
 
 @app.errorhandler(404)
 def page_not_found(error):

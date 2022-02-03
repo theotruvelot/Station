@@ -1,11 +1,15 @@
-from flask import Flask
-from flask_restx import Resource, Api
+from flask import Flask, request, session
+from flask_restx import Resource, Api, fields
 import logging
 from datetime import date
 import pymysql
 import string
 import random
+import bcrypt
+
+
 # récuperation de la date pour les logs.
+
 today = date.today()
 d1 = today.strftime("%d%m%Y")
 
@@ -23,12 +27,39 @@ try:
                              password='root',
                              database='weatherstation')
     logging.info("Database connection successful")
-    db.close()
 except pymysql.Error as err:
     logging.error(err)
     print(err)
     exit()
-
+    
+postsonde = api.model('POST DATA', {
+    'id': fields.String(required=True),
+    'key': fields.String(required=True),
+    'temp': fields.Float(required=True), 
+    'humi': fields.Float(required=True),
+})
+createsond= api.model('POST CREATE SOND', {
+    'useid': fields.String(required=True),
+    'location': fields.String(required=True)
+})
+updatesond= api.model('PUT SONDE STATUS', {
+    'idsonde': fields.String(required=True),
+    'status': fields.String(required=True)
+})
+login = api.model('LOGIN', {
+    'email': fields.String(required=True),
+    'password': fields.String(required=True)
+})
+register = api.model('REGISTER', {
+    'email': fields.String(required=True),
+    'password': fields.String(required=True),
+    'name':fields.String(required=True),
+    'prenom':fields.String(required=True)
+})
+createsond = api.model('POST CREATE SOND', {
+    'useid': fields.String(required=True),
+    'location': fields.String(required=True)
+})
 # test de l'API avec un ping
 
 @api.route("/ping") 
@@ -63,11 +94,22 @@ class Sondes(Resource):
 
 # récuperation des données envoyé par les sondes, vérification de sa clé, envoie dans la db
 
-@api.route("/post/sonde/<string:idsonde>/<string:key>/<string:temp>")
+@api.route("/post/sonde", methods=["POST"]) 
+@api.expect(postsonde)
 class Temp(Resource):
-    def post(self, idsonde, key, temp):
+    def post(self): 
+        print (request.is_json)
+        content = request.get_json()
+        print (content)
+        print(content['id'])
+        print (content['key'])
+        print (content['temp'])
+        idsonde = content['id']
+        key = content['key']
+        temp = content['temp']
+        humi = content['humi']
         sql_sondekey = "SELECT SON_KEY, SON_STATUS FROM SONDES WHERE SON_ID=%s"
-        sql = "INSERT INTO MESURES (MES_TEMP, SON_ID) VALUES (%s, %s)"
+        sql = "INSERT INTO MESURES (MES_TEMP, MES_HUMI, SON_ID) VALUES (%s, %s, %s)"
         sqllast = "UPDATE SONDES SET SON_LAST_MESURE=now() where SON_ID=%s"
         with db.cursor(pymysql.cursors.DictCursor) as cursor:
             try:
@@ -86,29 +128,29 @@ class Temp(Resource):
                         try:
                             # envoie de la commande sql pour l'injection
                             cursor.execute(sqllast, idsonde)
-                            cursor.execute(sql, (temp, idsonde))
+                            cursor.execute(sql, (temp, humi, idsonde))
                             db.commit()
                             last_id = cursor.lastrowid
-                            logging.info('Temp injected with probe ID : ' + idsonde + ', temp : ' + temp )
-                            db.close()
-                            return {'Temp injected with ID':str(last_id)}, 200
+                            logging.info('Temp injected with probe ID : ' + idsonde + ', temp : ' + str(temp) )
+                            return {'Temp injected with ID':str(last_id), 'id': idsonde, 'temp': temp, 'humi': humi, 'key': key}, 201 
                         except pymysql.Error as err:
-                            db.close()
                             logging.error(err)
                             return {'Error in temp injection'}, 500
                     else:
-                        db.close()
                         logging.warning("Sonde ID : " + idsonde + " want to inject with the wrong key or the status of probe = 0")
                         return{'Error': 'Check your API key or the status of the probe is down'}, 403
             except (pymysql.Error):
-                db.close()
                 logging.error("Error for ckecking probe ID")
                 return{'Error': 'for checking probe ID'}, 500
 
 # mise a jour du status d'une sonde
-@api.route("/admin/set/<string:idsonde>/<string:status>", methods=["PUT"])
+@api.route("/admin/sonde/set", methods=["PUT"])
+@api.expect(updatesond)
 class admin(Resource):
-    def put(self, idsonde, status):
+    def put():
+        content = request.get_json()
+        idsonde = content.get['idsonde']
+        status = content.get['status']
         #  commande pour la récupération du status / vérification l'existance de l'ID
         sql1 = "SELECT SON_ID, SON_STATUS FROM SONDES WHERE SON_ID=%s"
         # commande pour mettre a jour le status de la sonde
@@ -129,14 +171,19 @@ class admin(Resource):
                     db.commit()
                     db.close()
                     logging.info("Probe status with probe ID : " + idsonde + " was updated to : " + status)
-                    return{'Probe updated with ID':str(idsonde), 'and status':str(status)}               
+                    return{'Probe updated with ID':str(idsonde), 'and status':str(status)} , 201              
             except pymysql.Error as err:
                 db.close()
                 logging.error(err)
                 return {'Error in update probe status'}, 500
-@api.route("/sonde/create/<string:useid>/<string:location>", methods=["POST"])
+
+@api.route("/sonde/create", methods=["POST"])
+@api.expect(createsond)
 class sonde(Resource):
-    def post(self, location, useid):
+    def post(self):
+        content = request.get_json()
+        useid = content['useid']
+        location = content['location']
         length_of_string = 50
         key = ''.join(random.SystemRandom().choice(string.ascii_letters + string.digits) for _ in range(length_of_string))
         print(key)
@@ -186,6 +233,83 @@ class usondes(Resource):
                     db.close()
                     logging.error(err)
                     return{'Erreur dans la récupération des sondes'}, 500
+@api.route("/login", methods=["POST"])
+@api.expect(login)
+
+class login(Resource):
+    def post(self):
+        content = request.get_json()
+        email = content['email']
+        password = content['password']
+        print(email, password)
+        sql = "SELECT * FROM USERS WHERE USE_EMAIL = %s"
+        with db.cursor(pymysql.cursors.DictCursor) as cursor:
+            try:
+                cursor.execute(sql, email)
+                user = cursor.fetchone()
+                if len(user) >= 1:
+                    passd = password.encode('utf-8')
+                    print(bcrypt.hashpw(passd, user['USE_PASS'].encode('utf-8')))
+                    print(user['USE_PASS'].encode('utf-8'))
+                    if bcrypt.hashpw(passd, user['USE_PASS'].encode('utf-8')) == user['USE_PASS'].encode('utf-8'):
+                        idenfiants = []
+                        idenfiants.append({
+                                "useid":user['USE_ID'],
+                                "name":user['USE_NOM'],
+                                "prenom":user['USE_PRENOM'],
+                                "email":user['USE_EMAIL'],
+                                "admin":user['USE_ADMIN'],
+                        })
+                        logging.info('IDENTIFICATION USER : ' + str(user['USE_ID']) )
+                        return idenfiants, 201
+                    else:
+                        return "Error password and email doesnt match", 401
+                else:
+                    return "Error password and email doesnt match", 401
+            except db.Error as err:
+                print(err)
+
+@api.route("/register", methods=["POST"])
+@api.expect(register)
+
+class register(Resource):
+    def post(self):
+        content = request.get_json()
+        print(content)
+        prenom = content['prenom']
+        name = content['name']
+        email = content['email']
+        password = content['password'].encode('utf8')
+        print(prenom)
+        print(name, email, password)
+        hash_password = bcrypt.hashpw(password, bcrypt.gensalt())
+        sql = "INSERT INTO USERS (USE_NOM, USE_PRENOM, USE_EMAIL, USE_PASS) VALUES (%s, %s, %s, %s);"
+        sql1 = "SELECT USE_ID FROM USERS WHERE USE_EMAIL = %s"
+        with db.cursor(pymysql.cursors.DictCursor) as cursor:
+            try:
+                cursor.execute(sql1, email)
+                emails = cursor.fetchall()
+                last_id = cursor.lastrowid()
+                print(emails)
+                if emails == None:
+                    return{"Y'a déjà cet email bg go te login"}
+                else:
+                    try:
+                        idenfiants = [{
+                                    "useid":last_id,
+                                    "name": name,
+                                    "prenom":prenom,
+                                    "email":email
+                            }]
+                        cursor.execute(sql, (name, prenom, email, hash_password))
+                        db.commit()
+                        print(idenfiants)
+                        return idenfiants, 201
+                    except db.Error as err:
+                        print(err)
+            except db.Error as err:
+                print(err)
+                return{"error":err.message}
 # récupere tout les temp prisent par une sonde 
 @api.route("/sonde/data/<string:idsonde>", methods=["GET"])
 class temp(Resource):
@@ -208,7 +332,8 @@ class temp(Resource):
                                 "releve_id":releve['MES_ID'],
                                 "releve_date":str(releve['MES_DATE']),
                                 "releve_temp":str(releve['MES_TEMP']),
-                                "releve_sonde":releve['SON_ID']  
+                                "releve_sonde":releve['SON_ID'],
+                                "releve_humi":releve['MES_HUMI']
                         })
                         logging.info("recuperation des temps de la sondes %s", idsonde)
                     return releve_list, 200
@@ -218,4 +343,5 @@ class temp(Resource):
                 return{'Error db'}, 500
 
 if __name__ == '__main__':
+    app.secret_key = "123456789"
     app.run(host='0.0.0.0', port='5010', debug=True)
