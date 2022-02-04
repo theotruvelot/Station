@@ -1,0 +1,32 @@
+{% extends "layout.html" %} {% block title %} Sondes {% endblock %} 
+<link rel="stylesheet" href="../static/style.css">
+<head>
+
+</head>
+
+{% block content %}
+
+        <div class="sonde">
+
+                {% for i in sondes %}   
+
+                <div class="sonde-display-main sonde-display-number">
+                    <div> Sonde : {{ i.sonde_id }} </div>
+                    <div  style="display: flex"><p>Status : {% if i.sonde_status == '1' %} <p style="color: rgb(40, 214, 40);"> En ligne </p>  {% else %} <p style="color: red;"> Hors ligne </p>  {% endif %}</p></div>
+                    
+                    <div class="data-content-graphic-info">
+    
+                        <div><a class="btn_primary" href="sonde/data/{{i.sonde_id}}">Details</a></div>
+
+                
+
+                    </div>
+
+                </div > 
+
+                {% endfor %}
+
+        </div >
+
+
+{% endblock %}

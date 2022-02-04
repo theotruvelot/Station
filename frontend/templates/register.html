@@ -1,0 +1,61 @@
+{% extends "layout.html" %} {% block title %} Register {% endblock %}
+
+{% block content %}
+<link rel="stylesheet" href="../static/style.css">
+
+
+<div class="div-form">
+
+        <div class="div-form-title">
+                <h1>Register</h1>
+        </div>
+
+        <hr style="width: 80%; height: 0.5px; background-color: rgb(255, 255, 255);">
+
+        <form class="form-register-text" action="/register" method="POST">
+
+                <div class="div-form-register-info">
+                        <!--<label>Email:</label>-->
+                        <input type="text" class="div-form-register-info-text" name="prenom" placeholder="Prenom">
+                </div>
+                <div class="div-form-register-info">
+                        <!--<label>Password:</label>-->
+                        <input type="text" class="div-form-register-info-text" name="name" placeholder="Nom">
+                </div>
+
+                <div class="div-form-register-info">
+                        <input type="text" class="div-form-register-info-text" name="email" placeholder="Email">
+                </div>
+
+                <div class="div-form-register-info">
+                        <input type="password" class="div-form-register-info-text" name="password"
+                                placeholder="Password">
+                </div>
+
+                <div>
+                        <button type="submit" class="btn-primary-register">Register</button>
+                </div>
+
+        </form>
+
+        {% with messages = get_flashed_messages() %}
+        {% if messages %}
+        <ul class=flashes>
+                {% for message in messages %}
+                <li>{{ message }}</li>
+                {% endfor %}
+        </ul>
+        {% endif %}
+        {% endwith %}
+
+        <hr style="width: 80%; height: 0.5px; background-color: rgb(255, 255, 255);">
+
+        <div class="div-form-register">
+                <h2>Déjà un compte ?</h2>
+
+                <a href="/login">Se connecter</a>
+        </div>
+
+</div>
+
+{% endblock %}

@@ -1,0 +1,118 @@
+{% extends "layout.html" %} {% block title %} Data {% endblock %} 
+{% block content %}
+
+<link rel="stylesheet" href="http://localhost:5011/static/style.css">
+
+
+
+
+
+<div class="data-content">
+        
+        <!-- {{datas}} -->
+
+        <div class="data-content-graphic" id="data-content-graph">
+                <canvas id="lineChart" width="700" height="275"></canvas>
+                <script>
+                        var ctx = document.getElementById("lineChart").getContext("2d");
+                        var lineChart = new Chart(ctx, {
+                                type: 'line', 
+                                data: {
+                                        labels: {{ date | safe}},
+                                        datasets: [
+                                                {
+                                                label: "Température",
+                                                data: {{ temp | safe}},
+                                                fill: false, 
+                                                borderColor: "rgb(220,20,60)", 
+                                                lineTension: 0.1
+                                        },
+                                                {
+                                                label:"Humidité",
+                                                data: {{ humi | safe}},
+                                                fill: false, 
+                                                borderColor: "rgb(75, 192, 192)",
+                                                lineTension: 0.1
+                                        }
+                                ]
+                                },
+                                options: {
+                                        responsive: true
+                                }
+                        });
+                </script> 
+        </div>
+        
+        {% for i in datas %}
+        {% set date = [] %}
+        {% set date = date.append(i.releve_temp) %}
+        
+        
+
+       {% if i.releve_id == datas|length - 1 %}
+        
+        <div class="data-title-div">
+
+        <div class="data-content-title">
+                <div>Sonde : {{ i.releve_sonde }}</div>
+                
+        </div>
+
+        
+
+        <div class="data-content-btn">  
+
+                
+                {% if session['admin'] == '1' %}
+
+                {% if sonde_status == '1' %}
+
+                <div class="btn btn-purple">
+                        Eteindre
+                </div>
+
+                {% else %}
+
+                <div class="btn btn-purple">
+                        Allumer
+                </div>
+
+                {% endif %}
+
+                <div class="btn btn-red">
+                        Supprimer
+                </div>
+
+                {% endif %}
+        </div>
+
+        </div>
+
+       
+
+        
+
+
+        <div class="data-content-graphic-info">
+
+                <div class="data-content-graphic-info-flex">
+                <div>Température</div>
+                <div> : {{ i.releve_temp }} °C </div>
+                </div>
+
+                <div class="data-content-graphic-info-flex">
+                <div>Humidité</div>
+                <div> : {{ i.releve_humi }} %</div>
+                </div>
+                
+        </div>
+
+        {% endif %}
+
+        {% endfor %}
+
+
+</div>
+
+
+{% endblock %}

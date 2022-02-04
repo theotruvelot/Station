@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="fr">
+
+<head>
+        <meta charset="UTF-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <link rel="stylesheet" href="../static/style.css">
+        <title>{% block title %}{% endblock %}</title>
+
+
+        <script src="https://cdn.jsdelivr.net/npm/chart.js@2.9.4/dist/Chart.min.js"></script>
+
+</head>
+
+
+<body class="gradient-custom">
+
+        <div class="content">
+
+                <header>
+        
+                    <div class="navbar">
+                        
+                        <div class="navbar-left">
+                            <div class="navbar-logo"></div>
+                            <div class="navbar-title">WeatherStation</div>
+                        </div>
+        
+                        <div class="navbar-right">
+        
+                                <div class="navbar-item">
+                                        <a href="/">Home</a>
+                                </div>
+        
+                                {% if session['name'] %}
+
+                                <div class="navbar-item">
+                                        <a href="/sondes">Sondes</a>
+                                </div>
+
+                                <div class="navbar-item">
+                                        <a href="/logout">Logout</a>
+                                </div>
+        
+                                {% else %}
+
+                                <div class="navbar-item">
+                                        <a href="/login">Login</a>
+                                </div>
+        
+                                <div class="navbar-item">
+                                        <a href="/register">Register</a>
+                                </div>
+        
+                                {% endif %}
+
+                                
+
+                        </div>
+
+                        
+        
+                    </div>
+                
+
+
+
+                    
+
+
+
+
+                </header>
+        
+                {% block content %}{% endblock %}
+
+        </div>
+
+</body>
+
+</html>
