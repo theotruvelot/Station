@@ -1,23 +1,32 @@
-{% extends "layout.html" %} {% block title %} Home {% endblock %} 
+{% extends "layout.html" %} {% block title %} Sondes {% endblock %} 
+<link rel="stylesheet" href="../static/style.css">
+<head>
+
+</head>
 
 {% block content %}
 
-<div class="row">
-        <div class="col-md-6 col-md-offset-3">
-                <h2>Welcome!</h2>
-                {% if session['name']%}
-                <p>You login as {{session['name'] }} {{session['prenom']}}</p>
-                {% for i in sondes %}
-                      
-                   
-                    <li>Sonde : {{ i.sonde_id }} Status : {{ i.sonde_status }} <a href="/sonde/data/{{ i.sonde_id }}"> data </a> </li> 
-                {% endfor %}
-                {% else %}
-                <p>Not logged yet</p>
-                {% endif %}
-        </div>
-</div>
+        <div class="sonde">
 
-{% endblock %}<ul>
+                {% for i in sondes %}   
+
+                <div class="sonde-display-main sonde-display-number">
+                    <div> Sonde : {{ i.sonde_id }} </div>
+                    <div  style="display: flex"><p>Status : {% if i.sonde_status == '1' %} <p style="color: rgb(40, 214, 40);"> En ligne </p>  {% else %} <p style="color: red;"> Hors ligne </p>  {% endif %}</p></div>
+                    
+                    <div class="data-content-graphic-info">
     
-</ul>
+                        <div><a class="btn_primary" href="sonde/data/{{i.sonde_id}}">Details</a></div>
+
+                
+
+                    </div>
+
+                </div > 
+
+                {% endfor %}
+
+        </div >
+
+
+{% endblock %}

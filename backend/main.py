@@ -73,7 +73,7 @@ class Ping(Resource):
 @api.route("/sondes")
 class Sondes(Resource):
         def get(self):
-            sql = "select SON_ID, SON_STATUS  from sondes ;"
+            sql = "select SON_ID, SON_STATUS, SON_LAST_MESURE  from sondes ;"
             with db.cursor(pymysql.cursors.DictCursor) as cursor:
                 try:
                     db.connect()
@@ -84,9 +84,10 @@ class Sondes(Resource):
                             print(list)
                             sond_list.append({
                             "sonde_id":list['SON_ID'],
-                            "sonde_status":list['SON_STATUS']
+                            "sonde_status":list['SON_STATUS'],
                             })
-                    db.close()
+                    print(list)
+             
                     return sond_list, 200
                 except db.Error as err:
                     logging.error(err)
@@ -120,7 +121,7 @@ class Temp(Resource):
                 # gestion du cas ou l'id de la sonde est inconnue 
                 if str(sondks['SON_KEY']) == None:
                     logging.warning("A probe wan't to inject with a wrong ID")
-                    db.close()
+ 
                     return{'Error': 'Check your probe ID'}, 403
                 else: 
                 # vérification si la clé reçu correspond bien à la clé de la sonde
@@ -163,17 +164,17 @@ class admin(Resource):
                 # vérification si la sonde existe / si son status n'est pas = à celui demandé
                 if sondverif == None or sondverif['SON_STATUS'] == str(status):
                     logging.warning("Someone want change status of unknow probe")
-                    db.close()
+
                     return{'Error': 'Check your probe ID or the status or the status of the probe is already set'}, 403
                 else :
                     # envoie de la commande de mise a jour
                     cursor.execute(sql2, (status, idsonde))
                     db.commit()
-                    db.close()
+
                     logging.info("Probe status with probe ID : " + idsonde + " was updated to : " + status)
                     return{'Probe updated with ID':str(idsonde), 'and status':str(status)} , 201              
             except pymysql.Error as err:
-                db.close()
+         
                 logging.error(err)
                 return {'Error in update probe status'}, 500
 
@@ -198,7 +199,7 @@ class sonde(Resource):
                 db.commit()
                 return {'Sonde created with id:':str(last_id)}, 200
             except pymysql.Error as err:
-                db.close()
+     
                 logging.error(err)
                 return{'Erreur dans la création de la sonde'}, 500
 
@@ -214,7 +215,7 @@ class usondes(Resource):
                     cursor.execute(sql, userid)
                     sondes = cursor.fetchall()
                     if sondes == None:
-                        db.close()
+                       
                         logging.warning("Connais pas")
                     else:
                         db.connect()
@@ -230,7 +231,7 @@ class usondes(Resource):
                         logging.info("recuperation des temps de la sondes %s", sondes_list)
                     return sondes_list, 200
                 except pymysql.Error as err:
-                    db.close()
+             
                     logging.error(err)
                     return{'Erreur dans la récupération des sondes'}, 500
 @api.route("/login", methods=["POST"])
@@ -289,14 +290,16 @@ class register(Resource):
             try:
                 cursor.execute(sql1, email)
                 emails = cursor.fetchall()
-                last_id = cursor.lastrowid()
+                
+                id = cursor.fetchone()
                 print(emails)
+                print(id)
                 if emails == None:
                     return{"Y'a déjà cet email bg go te login"}
                 else:
                     try:
                         idenfiants = [{
-                                    "useid":last_id,
+                                    "useid":id,
                                     "name": name,
                                     "prenom":prenom,
                                     "email":email
@@ -322,7 +325,7 @@ class temp(Resource):
                 cursor.execute(sql, idsonde)
                 sondtemp = cursor.fetchall()
                 if sondtemp == None:
-                    db.close()
+                
                     logging.warning("Connais pas")
                 else:
                     db.connect()
@@ -338,7 +341,7 @@ class temp(Resource):
                         logging.info("recuperation des temps de la sondes %s", idsonde)
                     return releve_list, 200
             except pymysql.Error as err:
-                db.close()
+
                 logging.error(err)
                 return{'Error db'}, 500
 

@@ -1,20 +1,169 @@
-{% extends "layout.html" %} {% block title %} Home {% endblock %} {% block content %}
+<!DOCTYPE html>
+<html lang="fr">
 
-<div class="row">
-        <div class="col-md-6 col-md-offset-3">
-                <h2>Welcome!</h2>
-                {% if session['name']%}
-                <p>You login as {{session['name'] }} {{session['prenom']}}</p>
+<head>
+        <meta charset="UTF-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <link rel="stylesheet" href="../static/style.css">
+        <title>{% block title %}{% endblock %}</title>
+
+</head>
+
+
+<body class="gradient-custom">
+
+
+        {% if session['name']%}
+
+                
+        <div class="content">
+
+                <header>
         
+                    <div class="navbar">
+                        
+                        <div class="navbar-left">
+                            <div class="navbar-logo"></div>
+                            <div class="navbar-title">WeatherStation</div>
+                        </div>
+        
+                        <div class="navbar-right">
+        
+                                <div class="navbar-item">
+                                        <a href="/">Home</a>
+                                </div>
+        
+                                {% if session['name'] %}
 
+                                <div class="navbar-item">
+                                        <a href="/sondes">Sondes</a>
+                                </div>
 
+                                <div class="navbar-item">
+                                        <a href="/logout">Logout</a>
+                                </div>
+        
+                                {% else %}
 
+                                <div class="navbar-item">
+                                        <a href="/login">Login</a>
+                                </div>
+        
+                                <div class="navbar-item">
+                                        <a href="/register">Register</a>
+                                </div>
+        
+                                {% endif %}
 
+                        </div>
+        
+                    </div>
+                
+                </header>
+        
+                {% block content %}{% endblock %}
 
-                {% else %}
-                <p>Not logged yet</p>
-                {% endif %}
         </div>
-</div>
 
-{% endblock %}
+
+        {% endif %}
+
+
+        <div class="homepage">
+
+
+                <div class="homepage-title">
+
+                        <h1>Bienvenue sur notre projet CUBES</h1>
+                        <hr style="width: 60%; height: 1px; border: white; background-color: rgb(255, 255, 255);">
+                        <div>
+                                <div id="homepage-project-name">
+                                        <div class="logo"></div>
+                                        <h1>  WeatherStation CUBES</h1>     
+                                </div>
+                        </div>
+                </div>
+
+                
+
+                
+
+                <div class="homepage-info">
+
+                        {% if session['name']%}
+
+                        <div class="homepage-profile">
+                                <h1>Vous êtes connecté(e)</h1>
+                                <div class="homepage-profile-informations">
+                                        <div> 
+                                                <p>Nom :</p>  
+                                                <p>{{session['name'] }}</p>
+                                        </div>
+                                        <div> 
+                                                <p>Prénom :</p>  
+                                                <p>{{session['prenom']}}</p>
+                                        </div>
+                                        <div>
+                                                <p> Administrateur : </p>
+                                                <p> {% if session['admin'] == '1' %} Oui {% else %} Non {% endif %} </p>
+                                        </div>
+                                </div>
+                        </div>
+
+
+                        {% else %}
+                        <p>Vous n'êtes pas encore connecté</p>
+
+                        <div class="homepage-info-cube">
+
+                                <div class="homepage-info-cube-inside">
+
+                                        <p>Pas encore de compte ?</p>
+                                        <hr style="width: 80%; height: 0.5px; background-color: rgb(255, 255, 255);">
+                                        <p><a href="/register">S'enregistrer</a></p>
+
+                                </div>
+
+                                <div class="homepage-info-cube-inside">
+                                        
+                                        <p>Déjà un compte ?</p>
+                                        <hr style="width: 80%; height: 0.5px; background-color: rgb(255, 255, 255);">
+                                        <p><a href="/login">Se connecter</a></p>
+
+                                </div>
+                                        
+                                        {% endif %}
+                                        
+                        </div>
+
+                </div>
+
+                <div class="homepage-footer">
+
+                        <h1>Projet Réalisé par : </h1>
+
+                        <ul class="homepage-footer-name">
+                                
+                                <div>
+                                        <li>Théo</li>
+                                </div>
+                                <div>
+                                        <li>Noah</li>
+                                </div>
+                                <div>
+                                        <li>Alexandre</li>
+                                </div>
+                                <div>
+                                        <li>Alice</li>
+                                </div>
+                        </ul>
+
+                </div>
+                
+
+        </div>
+
+</body>
+
+</html>

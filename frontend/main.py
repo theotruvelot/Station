@@ -133,7 +133,7 @@ def put():
     })
     if r.status_code == 201:
         return{"OK"}
-    else
+    else:
         return{"NOK"}
 
 @app.errorhandler(404)
