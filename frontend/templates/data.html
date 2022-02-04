@@ -1,26 +1,111 @@
-{% extends "layout.html" %} {% block title %} Home {% endblock %} 
+{% extends "layout.html" %} {% block title %} Data {% endblock %} 
 {% block content %}
-<div class="row">
-        <div class="col-md-6 col-md-offset-3">
-                <h2>data</h2>
-                {% if session['name']%}
-                <p>You login as {{session['name'] }} {{session['prenom']}}</p>   
-                    {% if datas != None %}
-                        {% for i in datas %} 
-                        <ul>
-                            <li>
-                             id : {{ i.releve_id }} temp : {{ i.releve_temp }} date : {{ i.releve_date }} 
-                            </li>
-                        </ul>
-                     {% else %}
-                        <h1>AUCUNE DATA</h1>
-                        {% endfor%}
-                {% endif %}
+
+<link rel="stylesheet" href="http://localhost:5011/static/style.css">
+
+
+
+
+
+<div class="data-content">
+        
+        {{datas}}
+
+        
+        
+        {% for i in datas %}
+        {% set date = [] %}
+        {% set date = date.append(i.releve_temp) %}
+        {{ date }}
+        
+        <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
+        <script type="text/javascript">
+        google.charts.load('current', {'packages':['corechart']});
+        google.charts.setOnLoadCallback(drawChart);
+        
+        function drawChart() {
+        var data = google.visualization.arrayToDataTable([
+          ['Heure', 'Températures'],
+          ['{{ date }}', Number('{{ temp }}')]
+        ]);
+
+        var options = {
+          title: 'Températures',
+          curveType: 'function',
+          legend: { position: 'none' },
+          hAxis: {title: "Heure"},
+          vAxis: {title: "Températures", slantedText:true, slantedTextAngle:90}
+        };
+
+        var chart = new google.visualization.LineChart(document.getElementById('data-content-graph'));
+
+        chart.draw(data, options);
+      }
+    </script>
+
+       {% if i.releve_id == datas|length - 1 %}
+        
+        <div class="data-content-title">
+                
+                Sonde : {{ i.releve_sonde }}
+                Statut : {{ i.sonde_status }}
+
+        </div>
+
+        
+
+        <div class="data-content-btn">  
+
+                
+                {% if session['admin'] == '1' %}
+
+                {% if sonde_status == '1' %}
+
+                <div class="btn btn-purple">
+                        Eteindre
+                </div>
 
                 {% else %}
-                <p>Pas encore connecté</p>
+
+                <div class="btn btn-purple">
+                        Allumer
+                </div>
+
+                {% endif %}
+
+                <div class="btn btn-red">
+                        Supprimer
+                </div>
+
                 {% endif %}
         </div>
+
+        <hr style="width: 80%; height: 0.5px; background-color: rgb(255, 255, 255);">
+
+        <div class="data-content-graphic" id="data-content-graph">
+                <script src="https://cdn.jsdelivr.net/npm/chart.js@2.9.4/dist/Chart.min.js"></script>
+        </div>
+
+        <hr style="width: 80%; height: 0.5px; background-color: rgb(255, 255, 255);">
+
+        <div class="data-content-graphic-info">
+
+                
+
+                <div>Température</div>
+                <div> : {{ i.releve_temp }} °C </div>
+                
+                <div>Humidité</div>
+                <div> : {{ i.releve_humi }} %</div>
+
+        </div>
+
+        {% endif %}
+
+        {% endfor %}
+
+
 </div>
+
 
 {% endblock %}

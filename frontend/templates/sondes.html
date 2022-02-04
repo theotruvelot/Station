@@ -1,26 +1,61 @@
-{% extends "layout.html" %} {% block title %} Home {% endblock %} 
+{% extends "layout.html" %} {% block title %} Sondes {% endblock %} 
 <link rel="stylesheet" href="../static/style.css">
+<head>
+
+</head>
 
 {% block content %}
 
         <div class="sonde">
-                <h2 class="sonde-title">Welcome!</h2>
-        
-               
-                {% if session['name']%}
-                <p>You login as {{session['name'] }} {{session['prenom']}}</p>
+
                 {% for i in sondes %}
-                      
-                   
-                    <li>Sonde : {{ i.sonde_id }} Status : {{ i.sonde_status }} <a href="/sonde/data/{{ i.sonde_id }}"> data </a> </li> 
-                {% endfor %}
-                {% else %}
-                <p>Not logged yet</p>
-                {% endif %}
-                </div>
-        
 
-
-{% endblock %}<ul>
+                <div class="sonde-display-main sonde-display-number">
+                    <div> Sonde : {{ i.sonde_id }} </div>
+                    <div  style="display: flex"><p>Status : {% if i.sonde_status == '1' %} <p style="color: rgb(40, 214, 40);"> En ligne </p>  {% else %} <p style="color: red;"> Hors ligne </p>  {% endif %}</p></div>
+                    
+                    <div class="data-content-graphic-info">
     
-</ul>
+                        
+
+                        <div class="data-content-graphic-info-block">
+
+                            <div class="data-content-graphic-emoji"">
+                                
+                                {% if i.releve_humi > 50 %}
+        
+                                {% if i.sonde_lastmes < 0 %}
+        
+                                <a href="https://imgbb.com/"><img src="https://i.ibb.co/x85RsD3/cloud-with-snow.png" alt="cloud-with-snow" border="0"></a> 
+        
+                                {% else %}
+        
+                                <a href="https://imgbb.com/"><img src="https://i.ibb.co/R3ZQ1Xh/cloud-with-rain.png" alt="cloud-with-rain" border="0"></a> 
+        
+                                {% endif %}
+        
+                                {% else %}
+        
+                                <a href="https://imgbb.com/"><img src="https://i.ibb.co/ccgm9xh/sun.png" alt="sun" border="0"></a>
+                                
+                                {% endif %}
+                                
+                            </div>
+
+                            <div class="temp_humi">
+                                <div>Humidité</div>
+                                <div> : {{ i.releve_humi }} </div>
+                            </div>
+                        
+                        </div>
+
+                    </div>
+
+                </div > 
+
+                {% endfor %}
+
+        </div >
+
+
+{% endblock %}
