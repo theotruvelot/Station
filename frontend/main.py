@@ -90,8 +90,8 @@ def login():
             session['admin'] = admin[0]
             return render_template("home.html")
         else:
-            flash('Identifiants Incorrects')
-            return {"erreur dans le login"}
+            
+            return render_template("login.html")
     else:
         return render_template("login.html")
 
@@ -125,11 +125,13 @@ def data(id):
     temp = [row['releve_temp'] for row in datas]
     humi = [row['releve_humi'] for row in datas]
     return render_template("data.html",  datas = datas, temp = temp, date = date, humi = humi)
-@app.route("/admin/sonde/set")
-def put(): 
-    r = request.put("http://localhost:5010/admin/sonde/set", json={
-        "idsonde":request.form['idsonde'],
-        "status":request.form['status']
+@app.route("/admin/sonde/set", methods=['POST'])
+def test(): 
+    idsonde = request.form['idsonde']
+    status = request.form['status']		
+    r = requests.post("http://localhost:5010/admin/sonde/set", json={
+        "idsonde":str(idsonde),
+        "status":str(status)
     })
     if r.status_code == 201:
         return{"OK"}

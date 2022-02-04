@@ -73,7 +73,7 @@ class Ping(Resource):
 @api.route("/sondes")
 class Sondes(Resource):
         def get(self):
-            sql = "select SON_ID, SON_STATUS, SON_LAST_MESURE  from sondes ;"
+            sql = "select SON_ID, SON_STATUS, SON_LAST_MESURE  from SONDES ;"
             with db.cursor(pymysql.cursors.DictCursor) as cursor:
                 try:
                     db.connect()
@@ -145,7 +145,7 @@ class Temp(Resource):
                 return{'Error': 'for checking probe ID'}, 500
 
 # mise a jour du status d'une sonde
-@api.route("/admin/sonde/set", methods=["PUT"])
+@api.route("/admin/sonde/set", methods=["POST"])
 @api.expect(updatesond)
 class admin(Resource):
     def put():
@@ -264,9 +264,9 @@ class login(Resource):
                         logging.info('IDENTIFICATION USER : ' + str(user['USE_ID']) )
                         return idenfiants, 201
                     else:
-                        return "Error password and email doesnt match", 401
+                        return{"Error password and email doesnt match"}, 401
                 else:
-                    return "Error password and email doesnt match", 401
+                    return{"Error password and email doesnt match"}, 401
             except db.Error as err:
                 print(err)
 

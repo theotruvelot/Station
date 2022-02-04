@@ -1,0 +1,8 @@
+2022-02-04 11:16:51,166 INFO : Database connection successful
+2022-02-04 11:16:51,253 WARNING :  * Running on all addresses.
+   WARNING: This is a development server. Do not use it in a production deployment.
+2022-02-04 11:16:51,254 INFO :  * Running on http://192.168.8.237:5011/ (Press CTRL+C to quit)
+2022-02-04 11:16:51,259 INFO :  * Restarting with stat
+2022-02-04 11:16:52,853 INFO : Database connection successful
+2022-02-04 11:16:52,935 WARNING :  * Debugger is active!
+2022-02-04 11:16:52,937 INFO :  * Debugger PIN: 120-712-926

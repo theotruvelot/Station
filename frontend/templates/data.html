@@ -1,7 +1,7 @@
 {% extends "layout.html" %} {% block title %} Data {% endblock %} 
 {% block content %}
 
-<link rel="stylesheet" href="http://localhost:5011/static/style.css">
+<link rel="stylesheet" href="http://192.168.8.237:5011/static/style.css">
 
 
 
@@ -67,14 +67,18 @@
 
                 {% if sonde_status == '1' %}
 
-                <div class="btn btn-purple">
-                        Eteindre
+                <div>
+                    <a class="btn btn_purple" href="salut.com">    Eteindre </a>
                 </div>
 
                 {% else %}
 
-                <div class="btn btn-purple">
-                        Allumer
+                <div>
+                      <form action="/admin/sonde/set" method="post">
+			<input type="hidden" name="idsonde" value="{{i.releve_sonde}}">
+			<input type="hidden" name="status" value="0"> 
+			<button class="btn btn-purple" type="submit"> Eteindre </button>	
+		 </form>
                 </div>
 
                 {% endif %}
